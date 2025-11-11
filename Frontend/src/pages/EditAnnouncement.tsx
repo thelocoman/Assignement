@@ -144,6 +144,28 @@ const EditAnnouncement = () => {
   };
 
   const handlePublish = () => {
+    // 1. Define required fields check
+    if (!title.trim()) {
+      alert("Please enter a title for the announcement.");
+      return; // Stop execution
+    }
+
+    if (!content.trim()) {
+      alert("The announcement content cannot be empty.");
+      return; // Stop execution
+    }
+
+    if (selectedCategories.length === 0) {
+      alert("Please select at least one category for the announcement.");
+      return; // Stop execution
+    }
+
+    if (!publicationDate) {
+      alert("Please select a publication date.");
+      return; // Stop execution
+    }
+
+    // 2. If validation passes, proceed with publishing
     // In a real app, this would save to backend
     console.log("Publishing announcement:", { title, content, categories: selectedCategories, publicationDate });
     navigate("/");
