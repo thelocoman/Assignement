@@ -1,0 +1,56 @@
+
+### 1. By clicking send request you create a row with the data that you see inside the json. You should see a return statement 201 Created
+POST http://localhost:3005/announcements
+Content-Type: application/json
+
+{
+    "title": "Second Test Announcement",
+    "categories": ["General", "Testing"],
+    "content": "A new announcement created via REST Client extension."
+}
+
+
+
+###  2. Read all statements. You should see a return of a JSON with the data from the rows (the one you have created previously)
+GET http://localhost:3005/announcements
+
+
+
+### 3. Read a single announcement by ID. Replace {YOUR_ID} with the ID from the POST response 
+GET http://localhost:3005/announcements/1
+
+
+
+### 4. Test a 404 for a non existent ID. 
+GET http://localhost:3005/announcements/99999
+
+
+
+### 5. Update an announcement. Replace {YOUR_ID} with the ID from the POST response
+PUT http://localhost:3005/announcements/1
+Content-Type: application/json
+
+{
+    "title": "Updated Test Announcement Title",
+    "content": "The content has been revised and the last_update field should now be set."
+}
+
+
+
+### 6. Update a non-existent ID. You should get a 404
+PUT http://localhost:3005/announcements/99999
+Content-Type: application/json
+
+{
+    "title": "This should fail"
+}
+
+
+
+### 7. Delete an announcement. 
+DELETE http://localhost:3005/announcements/2
+
+
+
+### 8. You can try to request the deleted row and get a 404.
+GET http://localhost:3005/announcements/2
