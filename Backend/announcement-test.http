@@ -48,9 +48,9 @@ Content-Type: application/json
 
 
 ### 7. Delete an announcement. 
-DELETE http://localhost:3005/announcements/2
+DELETE http://localhost:3005/announcements/1
 
 
 
 ### 8. You can try to request the deleted row and get a 404.
-GET http://localhost:3005/announcements/2
+GET http://localhost:3005/announcements/1

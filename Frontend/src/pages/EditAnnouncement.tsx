@@ -1,4 +1,5 @@
-import { useState } from "react";
+// src/pages/EditAnnouncement.tsx
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
@@ -9,101 +10,11 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { X, ChevronDown } from "lucide-react";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-
-// Mock data - in a real app, this would come from a backend
-const announcements = [
-  {
-    id: 1,
-    title: "Title 1",
-    content: "Sample content for announcement 1",
-    publicationDate: "2023-08-11T04:38:00",
-    lastUpdate: "Aug 11, 2023",
-    categories: ["City"],
-  },
-  {
-    id: 2,
-    title: "Title 2",
-    content: "Sample content for announcement 2",
-    publicationDate: "2023-08-11T04:36:00",
-    lastUpdate: "Aug 11, 2023",
-    categories: ["City"],
-  },
-  {
-    id: 3,
-    title: "Title 3",
-    content: "Sample content for announcement 3",
-    publicationDate: "2023-08-11T04:35:00",
-    lastUpdate: "Aug 11, 2023",
-    categories: ["City"],
-  },
-  {
-    id: 4,
-    title: "Title 4",
-    content: "Sample content for announcement 4",
-    publicationDate: "2023-07-15T10:00:00",
-    lastUpdate: "Jul 15, 2023",
-    categories: ["Community events"],
-  },
-  {
-    id: 5,
-    title: "Title 5",
-    content: "Sample content for announcement 5",
-    publicationDate: "2023-06-20T14:30:00",
-    lastUpdate: "Jun 20, 2023",
-    categories: ["Culture", "Kids & Family"],
-  },
-  {
-    id: 6,
-    title: "Title 6",
-    content: "Sample content for announcement 6",
-    publicationDate: "2023-05-10T09:00:00",
-    lastUpdate: "May 10, 2023",
-    categories: ["Crime & Safety"],
-  },
-  {
-    id: 7,
-    title: "Title 7",
-    content: "Sample content for announcement 7",
-    publicationDate: "2023-03-24T07:27:00",
-    lastUpdate: "Mar 24, 2023",
-    categories: ["City", "Health"],
-  },
-  {
-    id: 8,
-    title: "Title 8",
-    content: "Sample content for announcement 8",
-    publicationDate: "2023-04-18T11:15:00",
-    lastUpdate: "Apr 18, 2023",
-    categories: ["For Seniors"],
-  },
-  {
-    id: 9,
-    title: "Title 9",
-    content: "Sample content for announcement 9",
-    publicationDate: "2023-02-28T16:45:00",
-    lastUpdate: "Feb 28, 2023",
-    categories: ["Discounts & Benefits"],
-  },
-  {
-    id: 10,
-    title: "Title 10",
-    content: "Sample content for announcement 10",
-    publicationDate: "2023-01-12T08:00:00",
-    lastUpdate: "Jan 12, 2023",
-    categories: ["Emergencies", "Crime & Safety"],
-  },
-];
+import { useAnnouncements } from "../components/AnnouncementsContext";
 
 const availableCategories = [
   "Community events",
@@ -119,18 +30,31 @@ const availableCategories = [
 const EditAnnouncement = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  
-  const announcement = announcements.find(a => a.id === Number(id));
-  
-  const [title, setTitle] = useState(announcement?.title || "");
-  const [content, setContent] = useState(announcement?.content || "");
+  const { getById, createFromEdited } = useAnnouncements();
+
+  const announcementId = id ? Number(id) : undefined;
+  const orig = announcementId ? getById(announcementId) : undefined;
+
+  const [title, setTitle] = useState(orig?.title || "");
+  const [content, setContent] = useState(orig?.content || "");
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    announcement?.categories || []
+    orig?.categories || []
   );
   const [publicationDate, setPublicationDate] = useState(
-    announcement?.publicationDate || ""
+    orig?.publicationDate || ""
   );
   const [open, setOpen] = useState(false);
+
+  // If the original announcement loads later, sync initial state once:
+  useEffect(() => {
+    if (orig) {
+      setTitle(orig.title);
+      setContent(orig.content);
+      setSelectedCategories(orig.categories);
+      setPublicationDate(orig.publicationDate);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orig?.id]); // run when orig changes
 
   const handleRemoveCategory = (category: string) => {
     setSelectedCategories(selectedCategories.filter(c => c !== category));
@@ -144,34 +68,36 @@ const EditAnnouncement = () => {
   };
 
   const handlePublish = () => {
-    // 1. Define required fields check
     if (!title.trim()) {
       alert("Please enter a title for the announcement.");
-      return; // Stop execution
+      return;
     }
-
     if (!content.trim()) {
       alert("The announcement content cannot be empty.");
-      return; // Stop execution
+      return;
     }
-
     if (selectedCategories.length === 0) {
       alert("Please select at least one category for the announcement.");
-      return; // Stop execution
+      return;
     }
-
     if (!publicationDate) {
       alert("Please select a publication date.");
-      return; // Stop execution
+      return;
     }
 
-    // 2. If validation passes, proceed with publishing
-    // In a real app, this would save to backend
-    console.log("Publishing announcement:", { title, content, categories: selectedCategories, publicationDate });
+    // Create a NEW announcement (do not mutate the original)
+    createFromEdited({
+      title,
+      content,
+      categories: selectedCategories,
+      publicationDate,
+    });
+
+    // navigate back to list (adjust route as required)
     navigate("/");
   };
 
-  if (!announcement && id) {
+  if (!orig && id) {
     return (
       <SidebarProvider>
         <div className="min-h-screen flex w-full bg-background">
@@ -193,7 +119,7 @@ const EditAnnouncement = () => {
         <main className="flex-1 p-8">
           <div className="max-w-3xl mx-auto">
             <h1 className="text-2xl font-bold text-foreground mb-8">Edit the announcement</h1>
-            
+
             <div className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="title" className="text-foreground">Title</Label>
@@ -220,7 +146,7 @@ const EditAnnouncement = () => {
                 <p className="text-sm text-muted-foreground">
                   Select category so readers know what your announcement is about.
                 </p>
-                
+
                 <Popover open={open} onOpenChange={setOpen}>
                   <PopoverTrigger asChild>
                     <div className="flex flex-wrap gap-2 min-h-[44px] items-center p-3 border border-input rounded-md bg-background cursor-pointer hover:bg-accent/5 transition-colors">

@@ -1,3 +1,4 @@
+// src/components/AnnouncementsTable.tsx
 import { Pencil } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -9,89 +10,23 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useAnnouncements } from "./AnnouncementsContext";
 
-interface Announcement {
-  id: number;
-  title: string;
-  publicationDate: string;
-  lastUpdate: string;
-  categories: string;
+function formatDateForTable(iso?: string) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return d.toLocaleString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
-const announcements: Announcement[] = [
-  {
-    id: 1,
-    title: "Title 1",
-    publicationDate: "Aug 11, 2023 04:38",
-    lastUpdate: "Aug 11, 2023",
-    categories: "City",
-  },
-  {
-    id: 2,
-    title: "Title 2",
-    publicationDate: "Aug 11, 2023 04:36",
-    lastUpdate: "Aug 11, 2023",
-    categories: "City",
-  },
-  {
-    id: 3,
-    title: "Title 3",
-    publicationDate: "Aug 11, 2023 04:35",
-    lastUpdate: "Aug 11, 2023",
-    categories: "City",
-  },
-  {
-    id: 4,
-    title: "Title 4",
-    publicationDate: "Apr 19, 2023 05:14",
-    lastUpdate: "Apr 19, 2023",
-    categories: "City",
-  },
-  {
-    id: 5,
-    title: "Title 5",
-    publicationDate: "Apr 19, 2023 05:11",
-    lastUpdate: "Apr 19, 2023",
-    categories: "City",
-  },
-  {
-    id: 6,
-    title: "Title 6",
-    publicationDate: "Apr 19, 2023 05:11",
-    lastUpdate: "Apr 19, 2023",
-    categories: "City",
-  },
-  {
-    id: 7,
-    title: "Title 7",
-    publicationDate: "Mar 24, 2023 07:27",
-    lastUpdate: "Mar 24, 2023",
-    categories: "City,Health",
-  },
-  {
-    id: 8,
-    title: "Title 8",
-    publicationDate: "Mar 24, 2023 07:26",
-    lastUpdate: "Mar 24, 2023",
-    categories: "City,Health",
-  },
-  {
-    id: 9,
-    title: "Title 9",
-    publicationDate: "Mar 24, 2023 07:26",
-    lastUpdate: "Mar 24, 2023",
-    categories: "City,Health",
-  },
-  {
-    id: 10,
-    title: "Title 10",
-    publicationDate: "Mar 24, 2023 07:26",
-    lastUpdate: "Mar 24, 2023",
-    categories: "City,Health",
-  },
-];
-
 export function AnnouncementsTable() {
+  const { announcements } = useAnnouncements();
+
   return (
     <div className="overflow-hidden">
       <Table>
@@ -111,13 +46,13 @@ export function AnnouncementsTable() {
                 {announcement.title}
               </TableCell>
               <TableCell className="text-muted-foreground">
-                {announcement.publicationDate}
+                {formatDateForTable(announcement.publicationDate)}
               </TableCell>
               <TableCell className="text-muted-foreground">
                 {announcement.lastUpdate}
               </TableCell>
               <TableCell className="text-muted-foreground">
-                {announcement.categories}
+                {announcement.categories.join(",")}
               </TableCell>
               <TableCell>
                 <Button
